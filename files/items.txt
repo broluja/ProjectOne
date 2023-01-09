@@ -1,0 +1,107 @@
+{
+    "1": {
+        "name": "Dell 2.31",
+        "price": 145.58,
+        "stock": 30
+    },
+    "2": {
+        "name": "Dell 3.45",
+        "price": 244.76,
+        "stock": 39
+    },
+    "3": {
+        "name": "Dell Inspiron",
+        "price": 108.7,
+        "stock": 9
+    },
+    "4": {
+        "name": "Dell Vostro 3500",
+        "price": 802.99,
+        "stock": 40
+    },
+    "5": {
+        "name": "Dell Vostro 3550",
+        "price": 977.99,
+        "stock": 51
+    },
+    "6": {
+        "name": "HP Wireless Mouse 2.5",
+        "price": 12.76,
+        "stock": 86
+    },
+    "7": {
+        "name": "HP Wireless Mouse 2.4",
+        "price": 12.03,
+        "stock": 85
+    },
+    "8": {
+        "name": "Logitech Wireless Mouse 2.4",
+        "price": 15.99,
+        "stock": 70
+    },
+    "9": {
+        "name": "HP Touchpad",
+        "price": 7.99,
+        "stock": 57
+    },
+    "10": {
+        "name": "HP Touchpad Pro",
+        "price": 17.89,
+        "stock": 59
+    },
+    "11": {
+        "name": "HP Wireless Keyboard",
+        "price": 45.88,
+        "stock": 120
+    },
+    "12": {
+        "name": "HP Wireless Keyboard Pro",
+        "price": 56.22,
+        "stock": 120
+    },
+    "13": {
+        "name": "Logitech Wireless Keyboard Pro",
+        "price": 46.27,
+        "stock": 117
+    },
+    "14": {
+        "name": "LG Monitor",
+        "price": 230.88,
+        "stock": 28
+    },
+    "15": {
+        "name": "LG Monitor Prime",
+        "price": 290.28,
+        "stock": 21
+    },
+    "16": {
+        "name": "HP Monitor",
+        "price": 245.08,
+        "stock": 30
+    },
+    "17": {
+        "name": "Samsung Monitor",
+        "price": 295.99,
+        "stock": 30
+    },
+    "18": {
+        "name": "Samsung Line",
+        "price": 243.99,
+        "stock": 26
+    },
+    "19": {
+        "name": "Logitech Bluetooth 1.09",
+        "price": 78.45,
+        "stock": 48
+    },
+    "20": {
+        "name": "Logitech Bluetooth V2",
+        "price": 79.99,
+        "stock": 39
+    },
+    "21": {
+        "name": "Sony Bluetooth Headset",
+        "price": 122.87,
+        "stock": 5
+    }
+}
