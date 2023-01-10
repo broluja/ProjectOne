@@ -24,4 +24,4 @@ Kreirane porudzbine cuvace se u posebnom fajlu gde ce biti informacija o proizvo
 Aplikacija pruza mogucnost pruzanja izvestaja ukoliko imate admin kredencijale.
 Broj porudbina, isnos svih porudzbina, najpopularniji artikli, iskorisceni kuponi i useri koji su ga iskoristili itd.
 
-Za kreiranje Usera, Narudzbine, Kupona i Proizvoda koristite se klase.
+Za kreiranje Usera, Narudzbine, Kupona i Proizvoda koriste se klase.
