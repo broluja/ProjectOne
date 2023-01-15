@@ -2,3 +2,10 @@
 __pycache__/
 *.zip
 *.rar
+
+files/users.txt
+files/orders.txt
+files/coupons.txt
+files/items.txt
+
+.env

@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from collections import defaultdict
 
@@ -8,12 +9,21 @@ from models.orders import Order, WHOLESALE_MINIMUM
 from app_exceptions.exceptions import *
 from utils import mprint, create_excel_file
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+ADMIN1 = os.getenv("ADMIN1")
+ADMIN2 = os.getenv("ADMIN2")
+PASSWORD1 = os.getenv("PASSWORD1")
+PASSWORD2 = os.getenv("PASSWORD2")
+
 
 class User(BaseClass):
     """Model for User"""
     total_objects = None
     filename = "files/users.txt"
-    admin_credentials = {"admin1": "password1", "admin2": "password2"}
+    admin_credentials = {ADMIN1: PASSWORD1, ADMIN2: PASSWORD2}
 
     def __init__(self, username, email, password, user_id=None):
         self.refresh_base()
@@ -270,7 +280,7 @@ class User(BaseClass):
             quantity = input("Enter quantity (integer number) or 'f' to finish >> ").lower()
             if quantity == 'f':
                 return order
-            while not quantity.isnumeric():
+            while not quantity.isnumeric() or quantity == "0":
                 quantity = input("Invalid input. Enter quantity (integer number) >> ").lower()
             quantity = int(quantity)
             if Item.check_stock(item, quantity):
@@ -505,6 +515,21 @@ class User(BaseClass):
         else:
             raise AdminStatusException
 
+    def get_total_money_paid(self):
+        """
+        Admin Option. Prints total money paid.
+        :return: None.
+        """
+        if self.admin_status:
+            orders = Order.read(Order.filename)
+            total = 0
+            for order in orders:
+                if orders[order]["status"] == "paid":
+                    total += orders[order].get("total", 0)
+            mprint(f"Brutto money paid: {total:.2f} EUR.")
+        else:
+            raise AdminStatusException
+
     def get_used_coupons(self) -> None:
         """
         Admin Option. Prints all used coupons and users.
@@ -572,6 +597,39 @@ class User(BaseClass):
                 mprint("Item updated! ☻")
             except OrderAPPException as e:
                 mprint(e.__str__())
+        else:
+            raise AdminStatusException
+
+    def delete_item(self):
+        """
+        Admin Option. Delete product.
+        :return: None.
+        """
+        if self.admin_status:
+            items = Item.read(Item.filename)
+            for item in items:
+                item_object = Item.create_item_object(item)
+                print(f"ID: {item_object.item_id} | Product: {item_object.name} | price: {item_object.price} |"
+                      f" on stock: {item_object.stock}")
+            item_id = input("Enter Product`s ID you want to delete or 'q' to quit >> ")
+            if item_id.lower() == 'q':
+                return
+            while item_id not in items:
+                item_id = input("Invalid ID. Enter Product`s ID you want to delete or 'q' to quit >> ")
+                if item_id.lower() == 'q':
+                    return
+            product = Item.create_item_object(item_id)
+            confirm = input(f"Are you sure you want to delete {product.name}? Y/N >>")
+            while confirm.lower() not in ('y', 'n'):
+                confirm = input(f"Enter Y for YES or N for NO. Are you sure you want to delete {product.name}? Y/N >> ")
+            if confirm.lower() == 'y':
+                try:
+                    Item.delete_item(item_id)
+                    mprint("Item deleted! ☻")
+                except OrderAPPException as e:
+                    mprint(e.__str__())
+            else:
+                return self.delete_item()
         else:
             raise AdminStatusException
 
