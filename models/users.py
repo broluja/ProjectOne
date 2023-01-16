@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from collections import defaultdict
+from dotenv import load_dotenv
 
 from models.base_class import BaseClass
 from models.coupons import Coupon
@@ -8,8 +9,6 @@ from models.items import Item
 from models.orders import Order, WHOLESALE_MINIMUM
 from app_exceptions.exceptions import *
 from utils import mprint, create_excel_file
-
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -299,6 +298,21 @@ class User(BaseClass):
             while choice not in ('y', 'n'):
                 choice = input("Please enter Y for 'YES' or N for 'NO'. Do you want to use your 5% coupon? >> ").lower()
             if choice == 'y':
+                coupon = input("Enter your coupon (press 'c' to see your coupon number or 'q' to go back) >> ")
+                if coupon.lower() == 'c':
+                    mprint(f"Your coupon: {self.coupon}")
+                elif coupon.lower() == 'q':
+                    mprint(f"Going back...", delimiter='.')
+                    return self.user_wants_coupon_discount()
+                elif coupon == self.coupon:
+                    return True
+                while coupon != self.coupon:
+                    coupon = input("Enter your coupon (press 'c' to see your coupon number or 'q' to go back) >> ")
+                    if coupon.lower() == 'c':
+                        mprint(f"Your coupon: {self.coupon}")
+                    elif coupon.lower() == 'q':
+                        mprint(f"Going back...", delimiter='.')
+                        return self.user_wants_coupon_discount()
                 return True
         else:
             mprint("You have no active coupons.")
@@ -442,10 +456,11 @@ class User(BaseClass):
         print(f"{'EUR': >77}")
         for item in order.items:
             product = Item.create_item_object(item)
-            length = 70 - len(product.name)
-            line = " " * length
             qty = order.items[item]
-            mprint(f"{product.name} x {qty}{line}{round(product.price * qty, 2)}", delimiter=".")
+            price = round(product.price * qty, 2)
+            length = 76 - len(product.name) - len(str(price))
+            line = " " * length
+            mprint(f"{product.name} x {qty}{line}{price}", delimiter=".")
         if order.coupon_used:
             print(f"Total: {order.get_total_price():>73}")
             print("Coupon discount 5% used for this order.")
@@ -629,6 +644,7 @@ class User(BaseClass):
                 except OrderAPPException as e:
                     mprint(e.__str__())
             else:
+                mprint("Going back...", delimiter='.')
                 return self.delete_item()
         else:
             raise AdminStatusException
