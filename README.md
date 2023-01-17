@@ -23,7 +23,7 @@ da se kreira excel file sa istim tim podacima.
 
 Kreirane porudzbine cuvace se u posebnom fajlu gde ce biti informacija o proizvodima, ukupnoj ceni i korisniku koji je porucio.
 
-Aplikacija pruza mogucnost preuzimanja izvestaja ukoliko imate admin kredencijale. Izvestaji su sledeci:
+Aplikacija pruza mogucnost izvestaja ukoliko imate admin kredencijale. Izvestaji su sledeci:
 broj porudbina, isnos svih porudzbina, najpopularniji artikli, iskorisceni kuponi i useri koji su ga iskoristili itd.
 Admin moze dodati i promeniti postojece Proizvode.
 
