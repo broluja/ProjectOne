@@ -1,14 +1,18 @@
 import typing
+import os
 from collections import defaultdict
+from dotenv import load_dotenv
 
 from models.items import Item
 from models.base_class import BaseClass
 from utils import mprint
 from app_exceptions.exceptions import *
 
-WHOLESALE_MINIMUM = 1000
-WHOLESALE_DISCOUNT = 0.85
-COUPON_DISCOUNT = 0.95
+load_dotenv()
+
+WHOLESALE_MINIMUM = os.getenv("WHOLESALE_MINIMUM")
+WHOLESALE_DISCOUNT = os.getenv("WHOLESALE_DISCOUNT")
+COUPON_DISCOUNT = os.getenv("COUPON_DISCOUNT")
 
 
 class Order(BaseClass):
