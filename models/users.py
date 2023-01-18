@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from collections import defaultdict
 from dotenv import load_dotenv
+from email_validator import validate_email, EmailNotValidError
 
 from models.base_class import BaseClass
 from models.coupons import Coupon
@@ -127,6 +128,16 @@ class User(BaseClass):
             mprint(e.__str__())
         return False
 
+    @staticmethod
+    def validate_email(email) -> bool:
+        try:
+            valid = validate_email(email)
+            valid_email = valid.email
+            return valid_email
+        except EmailNotValidError as e:
+            mprint(e.__str__())
+            return False
+
     @classmethod
     def register(cls) -> None:
         """
@@ -136,11 +147,15 @@ class User(BaseClass):
         try:
             cls.read(cls.filename)
         except OrderAPPException as e:
-            mprint(e.__str__())
-            return
+            return mprint(e.__str__())
+
         username = input("Enter username or 'q' for quit >> ")
         if username.lower() == 'q':
             return
+        elif not username:
+            mprint("You have to use some username.")
+            return cls.register()
+
         email = input("Enter email or 'q' to quit >> ")
         if email.lower() == 'q':
             return
@@ -148,9 +163,11 @@ class User(BaseClass):
             email = input(f"{email} already registered. Enter new email or 'q' to go back >> ")
             if email.lower() == 'q':
                 return
-        if not email:
-            mprint("Cannot register without an email. ♫")
-            return cls.register()
+        while not cls.validate_email(email):
+            email = input(f"Enter new email or 'q' to go back >> ")
+            if email.lower() == 'q':
+                return
+
         password = input("Enter password or 'q' for quit >> ")
         if password.lower() == 'q':
             return
@@ -240,13 +257,16 @@ class User(BaseClass):
         Print info on stdout whether user have used his coupon, or, if not, that he can still do it.
         :return: None.
         """
-        coupons = Coupon.read(Coupon.filename)
-        if self.coupon in coupons:
-            coupon = Coupon.create_coupon_object(self.coupon)
-            if coupon.is_used:
-                mprint("You have used your coupon.")
-            else:
-                mprint(f"Your can still use your coupon: {coupon.value}")
+        try:
+            coupons = Coupon.read(Coupon.filename)
+            if self.coupon in coupons:
+                coupon = Coupon.create_coupon_object(self.coupon)
+                if coupon.is_used:
+                    mprint("You have used your coupon.")
+                else:
+                    mprint(f"Your can still use your coupon: {coupon.value}")
+        except OrderAPPException as e:
+            mprint(e.__str__())
 
     def show_my_cart(self):
         """
@@ -456,7 +476,7 @@ class User(BaseClass):
         print(f"Receipt number: {order_id}")
         print(f"Registered Customer: {self.username}")
         print(f"Date: {now.strftime('%d/%m/%Y')} | Time: {now.strftime('%H:%M:%S')}")
-        print(f"{'EUR': >77}")
+        print(f"{'EUR': >80}")
         for item in order.items:
             product = Item.create_item_object(item)
             qty = order.items[item]
@@ -684,6 +704,7 @@ class User(BaseClass):
             return Coupon.get_status(self.coupon)
         except OrderAPPException as e:
             mprint(e.__str__())
+            return True
 
     def list_my_orders(self) -> str:
         """

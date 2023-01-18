@@ -34,7 +34,7 @@ class NonExistingItemException(OrderAPPException):
 
 # User Exceptions
 class AdminStatusException(OrderAPPException):
-    customer_message = "You do not have admin credentials."
+    customer_message = "This option is unavailable for you."
 
 
 class NonExistingUserException(OrderAPPException):

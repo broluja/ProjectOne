@@ -25,14 +25,15 @@ def main():
     else:
         users_input = None
         while users_input != "end":
-            mprint("\tWelcome to Order APP!", delimiter=" ", end="")
-            print("""
+            if user.is_admin():
+                mprint("\tWelcome to Order APP!", delimiter=" ", end="")
+                print("""
 \tCustomer options:\n
 \tA. Make Order or continue current one
-\tB. Save Order
-\tC. Cancel saved Order
-\tD. My Cart
-\tE. Clear my Cart
+\tB. My Cart
+\tC. Clear my Cart
+\tD. Save Order
+\tE. Cancel saved Order
 \tF. My saved Orders
 \tG. Go to Payments
 \tH. Show my coupon status
@@ -50,6 +51,21 @@ def main():
 \tR. Add New Product
 \tS. Update Product
 \tT. Delete Product\n""")
+            else:
+                mprint("\tWelcome to Order APP!", delimiter=" ", end="")
+                print("""
+\tCustomer options:\n
+\tA. Make Order or continue current one
+\tB. My Cart
+\tC. Clear my Cart
+\tD. Save Order
+\tE. Cancel saved Order
+\tF. My saved Orders
+\tG. Go to Payments
+\tH. Show my coupon status
+\tI. Show all Products
+\tJ. Get my order in Excel File
+\tK. Logout\n""")
 
             users_input = input("Enter option or 'end' for exit >>> ").lower()
 
@@ -57,17 +73,17 @@ def main():
                 user.make_order()
 
             elif users_input == 'b':
-                user.save_order()
-
-            elif users_input == 'c':
-                user.cancel_order()
-
-            elif users_input == 'd':
                 user.show_my_cart()
                 input("Press any key to continue >> ")
 
-            elif users_input == 'e':
+            elif users_input == 'c':
                 user.clear_cart()
+
+            elif users_input == 'd':
+                user.save_order()
+
+            elif users_input == 'e':
+                user.cancel_order()
 
             elif users_input == 'f':
                 user.show_my_saved_orders()
