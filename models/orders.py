@@ -10,9 +10,9 @@ from app_exceptions.exceptions import *
 
 load_dotenv()
 
-WHOLESALE_MINIMUM = os.getenv("WHOLESALE_MINIMUM")
-WHOLESALE_DISCOUNT = os.getenv("WHOLESALE_DISCOUNT")
-COUPON_DISCOUNT = os.getenv("COUPON_DISCOUNT")
+WHOLESALE_MINIMUM = float(os.getenv("WHOLESALE_MINIMUM"))
+WHOLESALE_DISCOUNT = float(os.getenv("WHOLESALE_DISCOUNT"))
+COUPON_DISCOUNT = float(os.getenv("COUPON_DISCOUNT"))
 
 
 class Order(BaseClass):
