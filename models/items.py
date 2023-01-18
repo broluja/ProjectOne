@@ -194,3 +194,11 @@ class Item(BaseClass):
                 return
         Item(name=item_name.title(), price=price, stock=int(count))
         mprint("New Item added! ☻")
+
+    @classmethod
+    def delete_item(cls, item_id):
+        items = cls.read(cls.filename)
+        if item_id not in items:
+            raise NonExistingItemException
+        del items[item_id]
+        cls.write(items, cls.filename)

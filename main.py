@@ -43,11 +43,13 @@ def main():
 \tAdmin options:\n
 \tL. List all orders
 \tM. Total amount of all orders
-\tN. Most popular Products
-\tO. Used Coupons
-\tP. Users with unused Coupons
-\tQ. Add New Product
-\tR. Update Product\n""")
+\tN. Money on account
+\tO. Most popular Products
+\tP. Used Coupons
+\tQ. Users with unused Coupons
+\tR. Add New Product
+\tS. Update Product
+\tT. Delete Product\n""")
 
             users_input = input("Enter option or 'end' for exit >>> ").lower()
 
@@ -104,33 +106,45 @@ def main():
 
             elif users_input == 'n':
                 try:
-                    user.get_popular_items()
+                    user.get_total_money_paid()
                 except OrderAPPException as e:
                     mprint(e.__str__())
 
             elif users_input == 'o':
+                try:
+                    user.get_popular_items()
+                except OrderAPPException as e:
+                    mprint(e.__str__())
+
+            elif users_input == 'p':
                 try:
                     user.get_used_coupons()
                     input("Press any key to continue >> ")
                 except OrderAPPException as e:
                     mprint(e.__str__())
 
-            elif users_input == 'p':
+            elif users_input == 'q':
                 try:
                     user.get_users_with_active_coupons()
                     input("Press any key to continue >> ")
                 except OrderAPPException as e:
                     mprint(e.__str__())
 
-            elif users_input == 'q':
+            elif users_input == 'r':
                 try:
                     user.add_new_item()
                 except AdminStatusException as e:
                     mprint(e.__str__())
 
-            elif users_input == 'r':
+            elif users_input == 's':
                 try:
                     user.update_items_count()
+                except AdminStatusException as e:
+                    mprint(e.__str__())
+
+            elif users_input == 't':
+                try:
+                    user.delete_item()
                 except AdminStatusException as e:
                     mprint(e.__str__())
 

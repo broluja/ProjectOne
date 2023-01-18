@@ -31,16 +31,16 @@ def init_file(file: str) -> None:
         writer.write(json.dumps(records, indent=4))
 
 
-def populate_items(filename: str, model) -> None:
+def populate_items(filename: str, item) -> None:
     """
     Initial population of items file.
     :param filename: str
-    :param model: class Item, cannot be imported here directly (circular Import)
+    :param item: class Item, cannot be imported here directly (circular Import)
     :return: None.
     """
     file = pd.read_csv(filename)
     for line in file.itertuples(index=False):
-        model(line.item_name, line.price, line.quantity)
+        item(line.item_name, line.price, line.quantity)
 
 
 def create_excel_file(frame: list, order_id: str) -> None:

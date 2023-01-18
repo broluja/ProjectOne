@@ -1,5 +1,7 @@
+import os
 from datetime import datetime
 from collections import defaultdict
+from dotenv import load_dotenv
 
 from models.base_class import BaseClass
 from models.coupons import Coupon
@@ -8,12 +10,19 @@ from models.orders import Order, WHOLESALE_MINIMUM
 from app_exceptions.exceptions import *
 from utils import mprint, create_excel_file
 
+load_dotenv()
+
+ADMIN1 = os.getenv("ADMIN1")
+ADMIN2 = os.getenv("ADMIN2")
+PASSWORD1 = os.getenv("PASSWORD1")
+PASSWORD2 = os.getenv("PASSWORD2")
+
 
 class User(BaseClass):
     """Model for User"""
     total_objects = None
     filename = "files/users.txt"
-    admin_credentials = {"admin1": "password1", "admin2": "password2"}
+    admin_credentials = {ADMIN1: PASSWORD1, ADMIN2: PASSWORD2}
 
     def __init__(self, username, email, password, user_id=None):
         self.refresh_base()
@@ -289,6 +298,21 @@ class User(BaseClass):
             while choice not in ('y', 'n'):
                 choice = input("Please enter Y for 'YES' or N for 'NO'. Do you want to use your 5% coupon? >> ").lower()
             if choice == 'y':
+                coupon = input("Enter your coupon (press 'c' to see your coupon number or 'q' to go back) >> ")
+                if coupon.lower() == 'c':
+                    mprint(f"Your coupon: {self.coupon}")
+                elif coupon.lower() == 'q':
+                    mprint(f"Going back...", delimiter='.')
+                    return self.user_wants_coupon_discount()
+                elif coupon == self.coupon:
+                    return True
+                while coupon != self.coupon:
+                    coupon = input("Enter your coupon (press 'c' to see your coupon number or 'q' to go back) >> ")
+                    if coupon.lower() == 'c':
+                        mprint(f"Your coupon: {self.coupon}")
+                    elif coupon.lower() == 'q':
+                        mprint(f"Going back...", delimiter='.')
+                        return self.user_wants_coupon_discount()
                 return True
         else:
             mprint("You have no active coupons.")
@@ -432,10 +456,11 @@ class User(BaseClass):
         print(f"{'EUR': >77}")
         for item in order.items:
             product = Item.create_item_object(item)
-            length = 70 - len(product.name)
-            line = " " * length
             qty = order.items[item]
-            mprint(f"{product.name} x {qty}{line}{round(product.price * qty, 2)}", delimiter=".")
+            price = round(product.price * qty, 2)
+            length = 76 - len(product.name) - len(str(price))
+            line = " " * length
+            mprint(f"{product.name} x {qty}{line}{price}", delimiter=".")
         if order.coupon_used:
             print(f"Total: {order.get_total_price():>73}")
             print("Coupon discount 5% used for this order.")
@@ -502,6 +527,21 @@ class User(BaseClass):
             for order in orders:
                 total += orders[order].get("total", 0)
             mprint(f"Brutto of all orders is {total:.2f} EUR.")
+        else:
+            raise AdminStatusException
+
+    def get_total_money_paid(self):
+        """
+        Admin Option. Prints total money paid.
+        :return: None.
+        """
+        if self.admin_status:
+            orders = Order.read(Order.filename)
+            total = 0
+            for order in orders:
+                if orders[order]["status"] == "paid":
+                    total += orders[order].get("total", 0)
+            mprint(f"Brutto money paid: {total:.2f} EUR.")
         else:
             raise AdminStatusException
 
@@ -572,6 +612,40 @@ class User(BaseClass):
                 mprint("Item updated! ☻")
             except OrderAPPException as e:
                 mprint(e.__str__())
+        else:
+            raise AdminStatusException
+
+    def delete_item(self):
+        """
+        Admin Option. Delete product.
+        :return: None.
+        """
+        if self.admin_status:
+            items = Item.read(Item.filename)
+            for item in items:
+                item_object = Item.create_item_object(item)
+                print(f"ID: {item_object.item_id} | Product: {item_object.name} | price: {item_object.price} |"
+                      f" on stock: {item_object.stock}")
+            item_id = input("Enter Product`s ID you want to delete or 'q' to quit >> ")
+            if item_id.lower() == 'q':
+                return
+            while item_id not in items:
+                item_id = input("Invalid ID. Enter Product`s ID you want to delete or 'q' to quit >> ")
+                if item_id.lower() == 'q':
+                    return
+            product = Item.create_item_object(item_id)
+            confirm = input(f"Are you sure you want to delete {product.name}? Y/N >>")
+            while confirm.lower() not in ('y', 'n'):
+                confirm = input(f"Enter Y for YES or N for NO. Are you sure you want to delete {product.name}? Y/N >> ")
+            if confirm.lower() == 'y':
+                try:
+                    Item.delete_item(item_id)
+                    mprint("Item deleted! ☻")
+                except OrderAPPException as e:
+                    mprint(e.__str__())
+            else:
+                mprint("Going back...", delimiter='.')
+                return self.delete_item()
         else:
             raise AdminStatusException
 
