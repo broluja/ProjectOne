@@ -2,7 +2,7 @@
     "1": {
         "name": "Dell 2.31",
         "price": 145.58,
-        "stock": 30
+        "stock": 27
     },
     "2": {
         "name": "Dell 3.45",
@@ -103,5 +103,10 @@
         "name": "Sony Bluetooth Headset",
         "price": 122.87,
         "stock": 5
+    },
+    "22": {
+        "name": "Test",
+        "price": 12.22,
+        "stock": 78
     }
 }

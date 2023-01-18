@@ -270,7 +270,7 @@ class User(BaseClass):
             quantity = input("Enter quantity (integer number) or 'f' to finish >> ").lower()
             if quantity == 'f':
                 return order
-            while not quantity.isnumeric():
+            while not quantity.isnumeric() or quantity == "0":
                 quantity = input("Invalid input. Enter quantity (integer number) >> ").lower()
             quantity = int(quantity)
             if Item.check_stock(item, quantity):
