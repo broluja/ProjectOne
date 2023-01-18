@@ -4,3 +4,7 @@ __pycache__/
 *.rar
 
 .env
+files/items.txt
+files/orders.txt
+files/coupons.txt
+files/users.txt

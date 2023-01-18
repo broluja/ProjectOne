@@ -323,7 +323,10 @@ class User(BaseClass):
         Pick Products, create Order and store it in User.
         :return: None.
         """
-        Item.show_products()
+        try:
+            Item.show_products()
+        except OrderAPPException as e:
+            return mprint(e.__str__())
         if self.order:
             order = self.order.items
         else:

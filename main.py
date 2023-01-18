@@ -80,11 +80,17 @@ def main():
                 user.show_coupon()
 
             elif users_input == 'i':
-                Item.show_products()
-                input("Press any key to continue >> ")
+                try:
+                    Item.show_products()
+                    input("Press any key to continue >> ")
+                except OrderAPPException as e:
+                    mprint(e.__str__())
 
             elif users_input == 'j':
-                user.generate_excel_file()
+                try:
+                    user.generate_excel_file()
+                except OrderAPPException as e:
+                    mprint(e.__str__())
 
             elif users_input == 'k':
                 if user.has_made_payments():
