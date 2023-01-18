@@ -7,6 +7,8 @@ from utils import mprint
 from app_exceptions.exceptions import *
 
 WHOLESALE_MINIMUM = 1000
+WHOLESALE_DISCOUNT = 0.85
+COUPON_DISCOUNT = 0.95
 
 
 class Order(BaseClass):
@@ -30,10 +32,10 @@ class Order(BaseClass):
         strng += f"\ntotal: {self.get_total_price()} EUR | status: {self.status}\n"
         if self.coupon_used:
             strng += f"Coupon discount (5%) will be applied on total amount.\n"
-            strng += f"Total: {round(self.get_total_price() * 0.95, 2)} EUR"
+            strng += f"Total: {round(self.get_total_price() * COUPON_DISCOUNT, 2)} EUR"
         elif self.get_total_price() > WHOLESALE_MINIMUM:
             strng += "Wholesale discount (15%) will be applied on total amount.\n"
-            strng += f"Total: {round(self.get_total_price() * 0.85, 2)} EUR"
+            strng += f"Total: {round(self.get_total_price() * WHOLESALE_DISCOUNT, 2)} EUR"
         return strng
 
     @property
@@ -142,11 +144,11 @@ class Order(BaseClass):
         """
         orders = self.read(self.filename)
         if apply_coupon:
-            total_price = round(self.get_total_price(update=True) * 0.95, 2)
+            total_price = round(self.get_total_price(update=True) * COUPON_DISCOUNT, 2)
             self.coupon_used = True
             mprint(f"Coupon discount of 5% applied on your order. Total balance is: {total_price} EUR")
         elif self.get_total_price() > WHOLESALE_MINIMUM:
-            total_price = round(self.get_total_price(update=True) * 0.85, 2)
+            total_price = round(self.get_total_price(update=True) * WHOLESALE_DISCOUNT, 2)
             mprint(f"Wholesale discount applied on your order. Total balance is: {total_price} EUR")
         else:
             total_price = self.get_total_price(update=True)

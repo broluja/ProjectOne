@@ -745,8 +745,7 @@ class User(BaseClass):
             try:
                 order = Order.create_order_object(order_id)
             except OrderAPPException as e:
-                mprint(e.__str__())
-                return
+                return mprint(e.__str__())
             total = orders[order_id].get("total")
             now = datetime.now()
             frame = []
