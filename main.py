@@ -29,7 +29,7 @@ def main():
                 mprint("\tWelcome to Order APP!", delimiter=" ", end="")
                 print("""
 \tCustomer options:\n
-\tA. Make Order or continue current one
+\tA. Make Order (or continue current one)
 \tB. My Cart
 \tC. Clear my Cart
 \tD. Save Order
@@ -51,7 +51,7 @@ def main():
 \tR. Add New Product
 \tS. Update Product
 \tT. Delete Product
-\tU. Lock User)
+\tU. Lock User
 \tV. Unlock User\n""")
             else:
                 mprint("\tWelcome to Order APP!", delimiter=" ", end="")
