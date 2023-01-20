@@ -50,7 +50,9 @@ def main():
 \tQ. Users with unused Coupons
 \tR. Add New Product
 \tS. Update Product
-\tT. Delete Product\n""")
+\tT. Delete Product
+\tU. Lock User)
+\tV. Unlock User\n""")
             else:
                 mprint("\tWelcome to Order APP!", delimiter=" ", end="")
                 print("""
@@ -167,6 +169,18 @@ def main():
             elif users_input == 't':
                 try:
                     user.delete_item()
+                except AdminStatusException as e:
+                    mprint(e.__str__())
+
+            elif users_input == 'u':
+                try:
+                    user.lock_user()
+                except AdminStatusException as e:
+                    mprint(e.__str__())
+
+            elif users_input == 'v':
+                try:
+                    user.lock_user(reverse=True)
                 except AdminStatusException as e:
                     mprint(e.__str__())
 

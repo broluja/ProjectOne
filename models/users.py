@@ -1,4 +1,5 @@
 import os
+import uuid
 from datetime import datetime
 from collections import defaultdict
 from dotenv import load_dotenv
@@ -679,6 +680,42 @@ class User(BaseClass):
         """
         if self.admin_status:
             Item.add_new_item()
+        else:
+            raise AdminStatusException
+
+    @staticmethod
+    def select_user_id(users: dict) -> str:
+        user_id = input("Select users ID or 'q' to go back >> ")
+        if user_id.lower() == 'q':
+            return ""
+        while user_id not in users:
+            user_id = input("Invalid input. Select users ID or 'q' to go back >> ")
+            if user_id.lower() == 'q':
+                return ""
+        return user_id
+
+    def lock_user(self, reverse=False) -> None:
+        if self.admin_status:
+            try:
+                users = self.read(self.filename)
+                for user in users:
+                    user_obj = User.create_user_object(user)
+                    print(f"User ID: {user_obj.id} | {user_obj.username}")
+                user_id = self.select_user_id(users)
+                if not user_id:
+                    return mprint("Going back...")
+                else:
+                    if reverse:
+                        new_pass = "password"
+                    else:
+                        new_pass = str(uuid.uuid4())
+                    users[user_id]['password'] = new_pass
+                    self.write(users, self.filename)
+                    mprint(
+                        f"{users[user_id]['username']} {'un' if reverse else ''}locked! New Password set to: {new_pass}"
+                    )
+            except OrderAPPException as e:
+                mprint(e.__str__())
         else:
             raise AdminStatusException
 

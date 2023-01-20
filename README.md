@@ -25,6 +25,6 @@ Kreirane porudzbine cuvace se u posebnom fajlu gde ce biti informacija o proizvo
 
 Aplikacija pruza mogucnost izvestaja ukoliko imate admin kredencijale. Izvestaji su sledeci:
 broj porudbina, isnos svih porudzbina, najpopularniji artikli, iskorisceni kuponi i useri koji su ga iskoristili itd.
-Admin moze dodati i promeniti postojece Proizvode.
+Admin moze dodati i promeniti postojece Proizvode, moze izbrisati Proizvod. Pored toga Admin moze zakljucavati i otkljucavati Usere.
 
 Za kreiranje Usera, Narudzbine, Kupona i Proizvoda koriste se klase.
