@@ -82,7 +82,13 @@ class Item(BaseClass):
         mprint(to_print)
 
     @classmethod
-    def check_stock(cls, item_id, quantity) -> bool:
+    def check_stock(cls, item_id: str, quantity: int) -> bool:
+        """
+        Check if specific quantity of item is available on stock.
+        :param item_id: item`s ID.
+        :param quantity: Quantity that is requested.
+        :return: bool.
+        """
         try:
             item = cls.create_item_object(item_id)
             if item and item.stock >= quantity:
@@ -196,7 +202,12 @@ class Item(BaseClass):
         mprint("New Item added! ☻")
 
     @classmethod
-    def delete_item(cls, item_id):
+    def delete_item(cls, item_id: str) -> None:
+        """
+        Delete specific item by item ID.
+        :param item_id: item`s ID
+        :return: None.
+        """
         items = cls.read(cls.filename)
         if item_id not in items:
             raise NonExistingItemException

@@ -334,6 +334,8 @@ class User(BaseClass):
                     elif coupon.lower() == 'q':
                         mprint(f"Going back...", delimiter='.')
                         return self.user_wants_coupon_discount()
+                    else:
+                        print("Invalid Coupon number.")
                 return True
         else:
             mprint("You have no active coupons.")
@@ -685,6 +687,11 @@ class User(BaseClass):
 
     @staticmethod
     def select_user_id(users: dict) -> str:
+        """
+        Select user's ID.
+        :param users: dict containing all users.
+        :return: selected ID, str.
+        """
         user_id = input("Select users ID or 'q' to go back >> ")
         if user_id.lower() == 'q':
             return ""
@@ -695,6 +702,11 @@ class User(BaseClass):
         return user_id
 
     def lock_user(self, reverse=False) -> None:
+        """
+        Lock suspicious User.
+        :param reverse: bool, if reverse action is needed.
+        :return: None.
+        """
         if self.admin_status:
             try:
                 users = self.read(self.filename)
