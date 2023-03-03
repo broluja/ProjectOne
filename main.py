@@ -102,13 +102,13 @@ def main():
                     Item.show_products()
                     input("Press any key to continue >> ")
                 except OrderAPPException as e:
-                    mprint(e.__str__())
+                    mprint(str(e))
 
             elif users_input == 'j':
                 try:
                     user.generate_excel_file()
                 except OrderAPPException as e:
-                    mprint(e.__str__())
+                    mprint(str(e))
 
             elif users_input == 'k':
                 if user.has_made_payments():
@@ -120,69 +120,69 @@ def main():
                     user.get_orders()
                     input("Press any key to continue >> ")
                 except OrderAPPException as e:
-                    mprint(e.__str__())
+                    mprint(str(e))
 
             elif users_input == 'm':
                 try:
                     user.get_brutto_orders()
                 except OrderAPPException as e:
-                    mprint(e.__str__())
+                    mprint(str(e))
 
             elif users_input == 'n':
                 try:
                     user.get_total_money_paid()
                 except OrderAPPException as e:
-                    mprint(e.__str__())
+                    mprint(str(e))
 
             elif users_input == 'o':
                 try:
                     user.get_popular_items()
                 except OrderAPPException as e:
-                    mprint(e.__str__())
+                    mprint(str(e))
 
             elif users_input == 'p':
                 try:
                     user.get_used_coupons()
                     input("Press any key to continue >> ")
                 except OrderAPPException as e:
-                    mprint(e.__str__())
+                    mprint(str(e))
 
             elif users_input == 'q':
                 try:
                     user.get_users_with_active_coupons()
                     input("Press any key to continue >> ")
                 except OrderAPPException as e:
-                    mprint(e.__str__())
+                    mprint(str(e))
 
             elif users_input == 'r':
                 try:
                     user.add_new_item()
                 except AdminStatusException as e:
-                    mprint(e.__str__())
+                    mprint(str(e))
 
             elif users_input == 's':
                 try:
                     user.update_items_count()
                 except AdminStatusException as e:
-                    mprint(e.__str__())
+                    mprint(str(e))
 
             elif users_input == 't':
                 try:
                     user.delete_item()
                 except AdminStatusException as e:
-                    mprint(e.__str__())
+                    mprint(str(e))
 
             elif users_input == 'u':
                 try:
                     user.lock_user()
                 except AdminStatusException as e:
-                    mprint(e.__str__())
+                    mprint(str(e))
 
             elif users_input == 'v':
                 try:
                     user.lock_user(reverse=True)
                 except AdminStatusException as e:
-                    mprint(e.__str__())
+                    mprint(str(e))
 
             elif users_input != 'end':
                 mprint("Unavailable option.")
