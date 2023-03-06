@@ -62,19 +62,18 @@ class Order(BaseClass):
     def create_order_object(cls, order_id: str) -> "Order":
         """
         Creates order instance.
-        :param order_id: order ID, int.
-        :return: order instance.
+        Param order_id: order ID, int.
+        Return: order instance.
         """
         orders = cls.read(cls.filename)
         order = orders.get(order_id)
         if not order:
             raise NonExistingOrderException
-        order_object = Order(order["user"],
-                             items=order["items"],
-                             status=order["status"],
-                             coupon_used=order["coupon_used"],
-                             order_id=int(order_id))
-        return order_object
+        return Order(order["user"],
+                     items=order["items"],
+                     status=order["status"],
+                     coupon_used=order["coupon_used"],
+                     order_id=int(order_id))
 
     @classmethod
     def remove(cls, order_id: int) -> None:
@@ -101,7 +100,7 @@ class Order(BaseClass):
     def get_most_popular_items(cls) -> None:
         """
         Printing three most popular items on stdout.
-        :return: None.
+        Return: None.
         """
         try:
             orders = cls.read(cls.filename)
@@ -125,8 +124,8 @@ class Order(BaseClass):
     def get_total_price(self, update=False):
         """
         Calculating total amount for order.
-        :param update: If update is True, updating items stock.
-        :return: None.
+        Param update: If update is True, updating items stock.
+        Return: None.
         """
         total = 0
         for item, quantity in self.items.items():
@@ -143,8 +142,8 @@ class Order(BaseClass):
     def record_order(self, apply_coupon=False):
         """
         Saving new Order to file.
-        :param apply_coupon: applies coupon discount if True
-        :return: None.
+        Param apply_coupon: applies coupon discount if True
+        Return: None.
         """
         orders = self.read(self.filename)
         if apply_coupon:
@@ -170,11 +169,10 @@ class Order(BaseClass):
     def print_info(self, order_id: str) -> None:
         """
         Print Order Info on stdout.
-        :param order_id: ID of Order.
-        :return: None.
+        Param order_id: ID of Order.
+        Return: None.
         """
         orders = self.read(self.filename)
-        order_id = str(order_id)
         if orders.get(order_id, None):
             total = 0
             items = orders[order_id]["items"]

@@ -10,10 +10,7 @@ class Coupon(BaseClass):
     filename = "files/coupons.txt"
 
     def __init__(self, value=None, is_used=False):
-        if value is None:
-            self.__value = str(uuid4())
-        else:
-            self.__value = value
+        self.__value = str(uuid4()) if value is None else value
         self.__is_used = is_used
         self.record()
 
@@ -43,10 +40,9 @@ class Coupon(BaseClass):
         """
         coupons = cls.read(cls.filename)
         try:
-            is_used = coupons[value].get("used", False)
-            return is_used
-        except KeyError:
-            raise InvalidCouponNumberException
+            return coupons[value].get("used", False)
+        except KeyError as exc:
+            raise InvalidCouponNumberException from exc
 
     @classmethod
     def create_coupon_object(cls, value) -> "Coupon":
@@ -59,22 +55,21 @@ class Coupon(BaseClass):
         for coupon in coupons:
             if coupon == value:
                 used = coupons[coupon].get("used", False)
-                coupon_object = Coupon(value=value, is_used=used)
-                return coupon_object
+                return Coupon(value=value, is_used=used)
 
     @classmethod
     def refund_coupon(cls, value) -> None:
         """
         Set coupon status to default when user cancel order, and he used coupon.
-        :param value: coupon number.
-        :return: None.
+        Param value: coupon number.
+        Return: None.
         """
         coupons = cls.read(cls.filename)
         try:
             coupons[value]["used"] = False
             cls.write(coupons, cls.filename)
-        except KeyError:
-            raise InvalidCouponNumberException
+        except KeyError as exc:
+            raise InvalidCouponNumberException from exc
 
     def use_coupon(self) -> None:
         """

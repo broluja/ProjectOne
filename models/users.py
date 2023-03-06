@@ -2,6 +2,8 @@ import os
 import uuid
 from datetime import datetime
 from collections import defaultdict
+from typing import Union
+
 from dotenv import load_dotenv
 from email_validator import validate_email, EmailNotValidError
 
@@ -86,32 +88,33 @@ class User(BaseClass):
         return my_unpaid_orders
 
     @classmethod
-    def create_user_object(cls, _id) -> "User":
+    def create_user_object(cls, user_id) -> "User":
         """
         Creates user instance.
-        :param _id: user ID.
-        :return: User instance.
+        Param user_id: user ID.
+        Return: User instance.
         """
         users = cls.read(cls.filename)
-        if _id in users:
-            user = User(users[_id]["username"], users[_id]["email"], users[_id]["password"], user_id=_id)
-            coupon_number = users[_id]["coupon"]
+        if user_id in users:
+            user = User(
+                users[user_id]["username"],
+                users[user_id]["email"],
+                users[user_id]["password"],
+                user_id=user_id
+            )
+            coupon_number = users[user_id]["coupon"]
             user.coupon = coupon_number
             if user.is_admin():
                 user.admin_status = True
             return user
-        else:
-            raise NonExistingUserException
+        raise NonExistingUserException
 
     def is_admin(self) -> bool:
         """
         Validate admin user.
         :return: bool.
         """
-        for key in self.admin_credentials.keys():
-            if self.username == key and self.password == self.admin_credentials[key]:
-                return True
-        return False
+        return any(self.username == key and self.password == value for key, value in self.admin_credentials.items())
 
     @classmethod
     def is_registered_email(cls, email: str) -> bool:
@@ -133,8 +136,7 @@ class User(BaseClass):
     def validate_email(email) -> bool:
         try:
             valid = validate_email(email)
-            valid_email = valid.email
-            return valid_email
+            return valid.email
         except EmailNotValidError as e:
             mprint(e.__str__())
             return False
@@ -143,7 +145,7 @@ class User(BaseClass):
     def register(cls) -> None:
         """
         Create User account and save it to file.
-        :return: None.
+        Return: None.
         """
         try:
             cls.read(cls.filename)
@@ -165,7 +167,7 @@ class User(BaseClass):
             if email.lower() == 'q':
                 return
         while not cls.validate_email(email):
-            email = input(f"Enter new email or 'q' to go back >> ")
+            email = input("Enter new email or 'q' to go back >> ")
             if email.lower() == 'q':
                 return
 
@@ -200,21 +202,20 @@ class User(BaseClass):
             password = input("Enter password or 'q' for quit >> ")
             if password.lower() == 'q':
                 return
-            else:
-                for user in users:
-                    if users[user].get("email") == email and users[user].get("password") == password:
-                        mprint(f"Successfully logged in. Welcome {users[user]['username']} ♫ ♪ ")
-                        try:
-                            return cls.create_user_object(user)
-                        except OrderAPPException as e:
-                            mprint(e.__str__())
-                mprint("Not valid credentials. ☻")
+            for user in users:
+                if users[user].get("email") == email and users[user].get("password") == password:
+                    mprint(f"Successfully logged in. Welcome {users[user]['username']} ♫ ♪ ")
+                    try:
+                        return cls.create_user_object(user)
+                    except OrderAPPException as e:
+                        mprint(e.__str__())
+            mprint("Not valid credentials. ☻")
 
     def refresh_base(self) -> None:
         """
         Getting the number of records in a file to generate next ID number.
         Creating two Admins also if they not already created.
-        :return: None.
+        Return: None.
         """
         try:
             super().refresh_base()
@@ -272,7 +273,7 @@ class User(BaseClass):
     def show_my_cart(self):
         """
         Prints current order in users Cart on stdout.
-        :return: None.
+        Return: None.
         """
         if self.order:
             mprint(self.order)
@@ -284,8 +285,8 @@ class User(BaseClass):
         """
         Pick products for new order or for continuing old one. Check if there is enough
         products on stock for your order.
-        :param order: current order saved in a dictionary.
-        :return: dict, order dictionary.
+        Param order: current order saved in a dictionary.
+        Return: dict, order dictionary.
         """
         items = Item.read(Item.filename)
         while True:
@@ -323,7 +324,7 @@ class User(BaseClass):
                 if coupon.lower() == 'c':
                     mprint(f"Your coupon: {self.coupon}")
                 elif coupon.lower() == 'q':
-                    mprint(f"Going back...", delimiter='.')
+                    mprint("Going back...", delimiter='.')
                     return self.user_wants_coupon_discount()
                 elif coupon == self.coupon:
                     return True
@@ -332,7 +333,7 @@ class User(BaseClass):
                     if coupon.lower() == 'c':
                         mprint(f"Your coupon: {self.coupon}")
                     elif coupon.lower() == 'q':
-                        mprint(f"Going back...", delimiter='.')
+                        mprint("Going back...", delimiter='.')
                         return self.user_wants_coupon_discount()
                     else:
                         print("Invalid Coupon number.")
@@ -350,10 +351,7 @@ class User(BaseClass):
             Item.show_products()
         except OrderAPPException as e:
             return mprint(e.__str__())
-        if self.order:
-            order = self.order.items
-        else:
-            order = defaultdict(int)
+        order = self.order.items if self.order else defaultdict(int)
         order = self.pick_products(order)
         if order:
             my_order = Order(self.id, order)
@@ -415,21 +413,22 @@ class User(BaseClass):
             mprint("You have no saved orders. ☻")
             return False
 
-    def choose_saved_order(self) -> str:
+    def choose_saved_order(self) -> Union[str, None]:
         """
         Select one of saved orders, if there is any.
         :return: str, order ID
         """
-        if self.show_my_saved_orders():
-            orders = [str(order.order_id) for order in self.saved_orders]
-            order_id = input("Enter order ID or 'q' to quit >> ")
+        if not self.show_my_saved_orders():
+            return
+        orders = [str(order.order_id) for order in self.saved_orders]
+        order_id = input("Enter order ID or 'q' to quit >> ")
+        if order_id == 'q':
+            return ""
+        while order_id not in orders:
+            order_id = input("Invalid order ID! Enter order ID or 'q' to quit >> ")
             if order_id == 'q':
                 return ""
-            while order_id not in orders:
-                order_id = input("Invalid order ID! Enter order ID or 'q' to quit >> ")
-                if order_id == 'q':
-                    return ""
-            return order_id
+        return order_id
 
     def cancel_order(self) -> None:
         """
@@ -452,7 +451,7 @@ class User(BaseClass):
     def clear_cart(self) -> None:
         """
         Clear users Cart.
-        :return: None.
+        Return: None.
         """
         if self.order:
             mprint("You have cleared your cart. ♫")
@@ -523,91 +522,81 @@ class User(BaseClass):
         Admin Option. Prints all orders saved in file.
         :return: None.
         """
-        if self.admin_status:
-            orders = Order.read(Order.filename)
-            if orders:
-                mprint("Made orders:", delimiter=" ")
-                for order in orders:
-                    try:
-                        user = self.create_user_object(orders[order]["user"])
-                        print(f"User '{user.username}' ordered:")
-                        for item_code, quantity in orders[order]["items"].items():
-                            item = Item.create_item_object(item_code)
-                            print(f"{item.name} x {quantity}")
-                        mprint(f"Total: {orders[order]['total']:.2f} EUR", delimiter="_")
-                    except OrderAPPException as e:
-                        mprint(e.__str__())
-            else:
-                mprint("There is no saved orders. ☻")
-        else:
+        if not self.admin_status:
             raise AdminStatusException
+        orders = Order.read(Order.filename)
+        if orders:
+            mprint("Made orders:", delimiter=" ")
+            for order in orders:
+                try:
+                    user = self.create_user_object(orders[order]["user"])
+                    print(f"User '{user.username}' ordered:")
+                    for item_code, quantity in orders[order]["items"].items():
+                        item = Item.create_item_object(item_code)
+                        print(f"{item.name} x {quantity}")
+                    mprint(f"Total: {orders[order]['total']:.2f} EUR", delimiter="_")
+                except OrderAPPException as e:
+                    mprint(e.__str__())
+        else:
+            mprint("There is no saved orders. ☻")
 
     def get_brutto_orders(self) -> None:
         """
         Admin Option. Prints total money for all orders.
         :return: None.
         """
-        if self.admin_status:
-            orders = Order.read(Order.filename)
-            total = 0
-            for order in orders:
-                total += orders[order].get("total", 0)
-            mprint(f"Brutto of all orders is {total:.2f} EUR.")
-        else:
+        if not self.admin_status:
             raise AdminStatusException
+        orders = Order.read(Order.filename)
+        total = sum(orders[order].get("total", 0) for order in orders)
+        mprint(f"Brutto of all orders is {total:.2f} EUR.")
 
     def get_total_money_paid(self):
         """
         Admin Option. Prints total money paid.
         :return: None.
         """
-        if self.admin_status:
-            orders = Order.read(Order.filename)
-            total = 0
-            for order in orders:
-                if orders[order]["status"] == "paid":
-                    total += orders[order].get("total", 0)
-            mprint(f"Brutto money paid: {total:.2f} EUR.")
-        else:
+        if not self.admin_status:
             raise AdminStatusException
+        orders = Order.read(Order.filename)
+        total = sum(orders[order].get("total", 0) for order in orders if orders[order]["status"] == "paid")
+        mprint(f"Brutto money paid: {total:.2f} EUR.")
 
     def get_used_coupons(self) -> None:
         """
         Admin Option. Prints all used coupons and users.
         :return: None.
         """
-        if self.admin_status:
-            coupons = Coupon.read(Coupon.filename)
-            used_coupons = [coupon for coupon in coupons if coupons[coupon].get("used")]
-            users = self.read(self.filename)
-            users_with_used_coupon = [(users[user]["username"], users[user]["coupon"]) for user in users if
-                                      users[user]["coupon"] in used_coupons]
-
-            for username, coupon in users_with_used_coupon:
-                mprint(f"User {username} used coupon: {coupon}", delimiter="_")
-            if not used_coupons:
-                mprint("There is no users with used coupons. ♫")
-        else:
+        if not self.admin_status:
             raise AdminStatusException
+        coupons = Coupon.read(Coupon.filename)
+        used_coupons = [coupon for coupon in coupons if coupons[coupon].get("used")]
+        users = self.read(self.filename)
+        users_with_used_coupon = [(users[user]["username"], users[user]["coupon"]) for user in users if
+                                  users[user]["coupon"] in used_coupons]
+
+        for username, coupon in users_with_used_coupon:
+            mprint(f"User {username} used coupon: {coupon}", delimiter="_")
+        if not used_coupons:
+            mprint("There is no users with used coupons. ♫")
 
     def get_users_with_active_coupons(self) -> None:
         """
         Admin Option. Prints all users with active 5% discount coupons.
         :return: None
         """
-        if self.admin_status:
-            users = self.read(self.filename)
-            user_count = 0
-            for user in users:
-                coupon_id = users[user].get("coupon")
-                coupon = Coupon.create_coupon_object(coupon_id)
-                if not coupon.is_used:
-                    mprint(f"{users[user]['username']} has active coupon {coupon.value}", delimiter=".")
-                    user_count += 1
-            if not user_count:
-                mprint("There is no users with active coupons. ♫")
-        else:
+        if not self.admin_status:
             raise AdminStatusException
+        users = self.read(self.filename)
+        user_count = 0
+        for user in users:
+            coupon_id = users[user].get("coupon")
+            coupon = Coupon.create_coupon_object(coupon_id)
+            if not coupon.is_used:
+                mprint(f"{users[user]['username']} has active coupon {coupon.value}", delimiter=".")
+                user_count += 1
+        if not user_count:
+            mprint("There is no users with active coupons. ♫")
 
     def get_popular_items(self) -> None:
         """
@@ -624,56 +613,54 @@ class User(BaseClass):
         Admin Option. Updating products count on stock.
         :return:
         """
-        if self.admin_status:
-            items = Item.read(Item.filename)
-            for item in items:
-                item_object = Item.create_item_object(item)
-                print(f"ID: {item_object.item_id} | Product: {item_object.name} | price: {item_object.price} |"
-                      f" on stock: {item_object.stock}")
-            new_values = Item.select_item()
-            if not new_values:
-                return
-            try:
-                Item.update_stock(item_id=new_values[0], quantity=new_values[2], new_price=new_values[1], adding=True)
-                mprint("Item updated! ☻")
-            except OrderAPPException as e:
-                mprint(e.__str__())
-        else:
+        if not self.admin_status:
             raise AdminStatusException
+        items = Item.read(Item.filename)
+        for item in items:
+            item_object = Item.create_item_object(item)
+            print(f"ID: {item_object.item_id} | Product: {item_object.name} | price: {item_object.price} |"
+                  f" on stock: {item_object.stock}")
+        new_values = Item.select_item()
+        if not new_values:
+            return
+        try:
+            Item.update_stock(item_id=new_values[0], quantity=new_values[2], new_price=new_values[1], adding=True)
+            mprint("Item updated! ☻")
+        except OrderAPPException as e:
+            mprint(e.__str__())
 
     def delete_item(self):
         """
         Admin Option. Delete product.
         :return: None.
         """
-        if self.admin_status:
-            items = Item.read(Item.filename)
-            for item in items:
-                item_object = Item.create_item_object(item)
-                print(f"ID: {item_object.item_id} | Product: {item_object.name} | price: {item_object.price} |"
-                      f" on stock: {item_object.stock}")
-            item_id = input("Enter Product`s ID you want to delete or 'q' to quit >> ")
+        if not self.admin_status:
+            raise AdminStatusException
+        items = Item.read(Item.filename)
+        for item in items:
+            item_object = Item.create_item_object(item)
+            print(f"ID: {item_object.item_id} | Product: {item_object.name} | price: {item_object.price} |"
+                  f" on stock: {item_object.stock}")
+        item_id = input("Enter Product`s ID you want to delete or 'q' to quit >> ")
+        if item_id.lower() == 'q':
+            return
+        while item_id not in items:
+            item_id = input("Invalid ID. Enter Product`s ID you want to delete or 'q' to quit >> ")
             if item_id.lower() == 'q':
                 return
-            while item_id not in items:
-                item_id = input("Invalid ID. Enter Product`s ID you want to delete or 'q' to quit >> ")
-                if item_id.lower() == 'q':
-                    return
-            product = Item.create_item_object(item_id)
-            confirm = input(f"Are you sure you want to delete {product.name}? Y/N >>")
-            while confirm.lower() not in ('y', 'n'):
-                confirm = input(f"Enter Y for YES or N for NO. Are you sure you want to delete {product.name}? Y/N >> ")
-            if confirm.lower() == 'y':
-                try:
-                    Item.delete_item(item_id)
-                    mprint("Item deleted! ☻")
-                except OrderAPPException as e:
-                    mprint(e.__str__())
-            else:
-                mprint("Going back...", delimiter='.')
-                return self.delete_item()
+        product = Item.create_item_object(item_id)
+        confirm = input(f"Are you sure you want to delete {product.name}? Y/N >>")
+        while confirm.lower() not in ('y', 'n'):
+            confirm = input(f"Enter Y for YES or N for NO. Are you sure you want to delete {product.name}? Y/N >> ")
+        if confirm.lower() == 'y':
+            try:
+                Item.delete_item(item_id)
+                mprint("Item deleted! ☻")
+            except OrderAPPException as e:
+                mprint(e.__str__())
         else:
-            raise AdminStatusException
+            mprint("Going back...", delimiter='.')
+            return self.delete_item()
 
     def add_new_item(self):
         """
@@ -689,8 +676,8 @@ class User(BaseClass):
     def select_user_id(users: dict) -> str:
         """
         Select user's ID.
-        :param users: dict containing all users.
-        :return: selected ID, str.
+        Param users: dict containing all users.
+        Return: selected ID, str.
         """
         user_id = input("Select users ID or 'q' to go back >> ")
         if user_id.lower() == 'q':
@@ -704,32 +691,25 @@ class User(BaseClass):
     def lock_user(self, reverse=False) -> None:
         """
         Lock suspicious User.
-        :param reverse: bool, if reverse action is needed.
-        :return: None.
+        Param reverse: bool, if reverse action is needed.
+        Return: None.
         """
-        if self.admin_status:
-            try:
-                users = self.read(self.filename)
-                for user in users:
-                    user_obj = User.create_user_object(user)
-                    print(f"User ID: {user_obj.id} | {user_obj.username}")
-                user_id = self.select_user_id(users)
-                if not user_id:
-                    return mprint("Going back...")
-                else:
-                    if reverse:
-                        new_pass = "password"
-                    else:
-                        new_pass = str(uuid.uuid4())
-                    users[user_id]['password'] = new_pass
-                    self.write(users, self.filename)
-                    mprint(
-                        f"{users[user_id]['username']} {'un' if reverse else ''}locked! New Password set to: {new_pass}"
-                    )
-            except OrderAPPException as e:
-                mprint(e.__str__())
-        else:
+        if not self.admin_status:
             raise AdminStatusException
+        try:
+            users = self.read(self.filename)
+            for user in users:
+                user_obj = User.create_user_object(user)
+                print(f"User ID: {user_obj.id} | {user_obj.username}")
+            user_id = self.select_user_id(users)
+            if not user_id:
+                return mprint("Going back...")
+            new_pass = "password" if reverse else str(uuid.uuid4())
+            users[user_id]['password'] = new_pass
+            self.write(users, self.filename)
+            mprint(f"{users[user_id]['username']} {'un' if reverse else ''}locked! New Password set to: {new_pass}")
+        except OrderAPPException as e:
+            mprint(e.__str__())
 
     def has_made_payments(self) -> bool:
         """
@@ -762,25 +742,24 @@ class User(BaseClass):
         """
         orders = Order.read(Order.filename)
         my_orders = [order for order in orders if orders[order]["user"] == self.id]
-        if my_orders:
-            for order in my_orders:
-                mprint(f"Order ID: {order}", delimiter=" ")
-                try:
-                    my_order = Order.create_order_object(order)
-                except OrderAPPException as e:
-                    mprint(e.__str__())
-                    return ""
-                mprint(my_order, delimiter="_")
-            order_id = input("Enter order ID or 'q' to quit >> ")
+        if not my_orders:
+            return "No Orders"
+        for order in my_orders:
+            mprint(f"Order ID: {order}", delimiter=" ")
+            try:
+                my_order = Order.create_order_object(order)
+            except OrderAPPException as e:
+                mprint(e.__str__())
+                return ""
+            mprint(my_order, delimiter="_")
+        order_id = input("Enter order ID or 'q' to quit >> ")
+        if order_id == 'q':
+            return ""
+        while order_id not in my_orders:
+            order_id = input("Invalid order ID! Enter order ID or 'q' to quit >> ")
             if order_id == 'q':
                 return ""
-            while order_id not in my_orders:
-                order_id = input("Invalid order ID! Enter order ID or 'q' to quit >> ")
-                if order_id == 'q':
-                    return ""
-            return order_id
-        else:
-            return "No Orders"
+        return order_id
 
     def generate_excel_file(self) -> None:
         """
@@ -810,9 +789,10 @@ class User(BaseClass):
                 frame.append(["", "", "", "Sum", str(total)])
             frame.append([])
             coupon_used = "YES" if order.coupon_used else "No"
-            frame.append(["Used coupon: ", coupon_used, "", "", ""])
-            frame.append(["Date", f"{now.strftime('%d/%m/%Y')}", "", "", ""])
-            frame.append(["Time", f"{now.strftime('%H:%M:%S')}", "", "", ""])
+            frame.extend((["Used coupon: ", coupon_used, "", "", ""],
+                          ["Date", f"{now.strftime('%d/%m/%Y')}", "", "", ""],
+                          ["Time", f"{now.strftime('%H:%M:%S')}", "", "", ""])
+                         )
             try:
                 create_excel_file(frame, order_id)
             except OrderAPPException as e:

@@ -48,8 +48,8 @@ class Item(BaseClass):
     def create_item_object(cls, item_id) -> "Item":
         """
         Creates an instance of item if exists in a file.
-        :param item_id: item ID, str.
-        :return: item instance.
+        Param item_id: item ID, str.
+        Return: item instance.
         """
         products = cls.read(cls.filename)
         if item_id in products:
@@ -66,7 +66,7 @@ class Item(BaseClass):
         products = cls.read(cls.filename)
         white_space = " " * 55
         mprint(f"{'Order APP Products':^75s}", delimiter=" ")
-        mprint("Code - Product" + white_space + "Price (EUR)", delimiter=".")
+        mprint(f"Code - Product{white_space}Price (EUR)", delimiter=".")
         to_print = ""
         for item_id in products:
             try:
@@ -85,9 +85,9 @@ class Item(BaseClass):
     def check_stock(cls, item_id: str, quantity: int) -> bool:
         """
         Check if specific quantity of item is available on stock.
-        :param item_id: item`s ID.
-        :param quantity: Quantity that is requested.
-        :return: bool.
+        Param item_id: item's ID.
+        Param quantity: Quantity that is requested.
+        Return: bool.
         """
         try:
             item = cls.create_item_object(item_id)
@@ -101,9 +101,9 @@ class Item(BaseClass):
     def return_to_stock(cls, item_id: str, qty: int) -> None:
         """
         Return items to stock when user cancels his Order.
-        :param item_id: item ID, str.
-        :param qty: count of item.
-        :return: None.
+        Param item_id: item ID, str.
+        Param qty: count of item.
+        Return: None.
         """
         items = cls.read(cls.filename)
         if item_id in items:
@@ -116,7 +116,7 @@ class Item(BaseClass):
     def select_item(cls) -> tuple:
         """
         Taking admins' data, new price and new stock count.
-        :return: tuple with item ID, price and stock.
+        Return: tuple with item ID, price and stock.
         """
         items = cls.read(cls.filename)
         item_id = input("Enter products ID or 'q' to quit >> ").lower()
@@ -156,11 +156,11 @@ class Item(BaseClass):
     def update_stock(cls, item_id: str, quantity: int, new_price: float = None, adding=False) -> None:
         """
         Updating stock count for specific Item.
-        :param item_id: Item ID, str.
-        :param quantity: new quantity, int.
-        :param new_price: new item price, float.
-        :param adding: bool, True if we are adding to stock.
-        :return: None.
+        Param item_id: Item ID, str.
+        Param quantity: new quantity, int.
+        Param new_price: new item price, float.
+        Param adding: bool, True if we are adding to stock.
+        Return: None.
         """
         items = cls.read(cls.filename)
         try:
@@ -169,10 +169,10 @@ class Item(BaseClass):
             else:
                 items[item_id]["stock"] -= quantity
             if new_price:
-                items[item_id]["price"] = float(new_price)
+                items[item_id]["price"] = new_price
             cls.write(items, cls.filename)
-        except KeyError:
-            raise NonExistingItemException
+        except KeyError as exc:
+            raise NonExistingItemException from exc
 
     @classmethod
     def add_new_item(cls) -> None:
@@ -205,8 +205,8 @@ class Item(BaseClass):
     def delete_item(cls, item_id: str) -> None:
         """
         Delete specific item by item ID.
-        :param item_id: item`s ID
-        :return: None.
+        Param item_id: item's ID
+        Return: None.
         """
         items = cls.read(cls.filename)
         if item_id not in items:
